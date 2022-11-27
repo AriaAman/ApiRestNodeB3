@@ -4,12 +4,12 @@ const mongoosse = require('mongoose');
 const studentSchema = new mongoosse.Schema({
     firstname:{
         type: String,
-        require: [true, 'Entrez un prénom'],
+        required: [true, 'Entrez un prénom'],
         trim: true
     },
     lastname:{
         type: String,
-        require: [true, 'Entrez un nom'],
+        required: [true, 'Entrez un nom'],
         trim: true
     }
 },{

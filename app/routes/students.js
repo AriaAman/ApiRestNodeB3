@@ -5,7 +5,7 @@ const studentModel = require('../models/student');
 const { response } = require('express');
 const { request } = require('http');
 
-const student = require('../models/student');
+const classeStudent = require('../models/student');
 
 let router = express.Router();
 
@@ -31,35 +31,67 @@ router.post('/', async(req, res) =>{
 })
 
 //LIRE 
-router.get('/', (req, res) => {
-    res.status(200).json(student);
+router.get('/', async (req, res) => {
+    try {
+        let student = await classeStudent.find()
+        return res.status(200).json(student);
+    } catch(error){
+        return res.status(500).json({
+            msg: error
+        })
+    }
 }),
 //LIRE MAIS AVEC UN ID PRECIS
-router.get('/:id', (req, res) => {
+router.get('/:id', async (req, res) => {
     const {id} = req.params;
 
-    let student = students.find(item => item.id === id);
-
-    res.status(200).json(student);
+    try{
+        let student = await classeStudent.findById(id); 
+        return res.status(200).json(student);
+    } catch(error){
+        return res.status(500).json({
+            msg: error
+        })
+    }
 }),
 //SUPPRIMER UN ID
-router.delete('/:id', (req,res) => {
+router.delete('/:id', async (req,res) => {
     const {id} = req.params;
+    try{
+        let student = await classeStudent.findByIdAndRemove(id);
+        return res.status(200).json(student);
+    } catch(error){
+        return res.status(500).json({
+            msg: error
+        })
+    }
+    // let student = students.filter(object => object.id !== id);
 
-    let student = students.filter(object => object.id !== id);
-
-    res.status(200).json(classe);
+    // res.status(200).json(classe);
 }),
 //MODIFIER UN NOM DANS UN ID
-router.put('/:id', (req,res) =>{
+router.put('/:id', async (req,res) =>{
     const {id} = req.params;
     const {name} = req.body;
+    try {
+        let student = await classeStudent.findByIdAndUpdate(id,
+            {
+                name
+            },{
+                new: true
+            })
+        return res.status(200).json({
+            student,
+            msg: "Classe bien modifiée !"
+        })
+    }catch (error) {
+        return res.status(500).json(error)
+    }
+    // let student = students.find(item => item.id === id);
 
-    let student = students.find(item => item.id === id);
+    // student.name = name;
 
-    student.name = name;
-
-    res.status(200).json(classe);
+    // res.status(200).json(classe);
 })
 
 
