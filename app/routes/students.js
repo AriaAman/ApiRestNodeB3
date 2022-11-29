@@ -4,10 +4,80 @@ const studentModel = require('../models/student');
 
 const { response } = require('express');
 const { request } = require('http');
-
-const classeStudent = require('../models/student');
+const bcrypt = require('bcrypt');
+const { traceDeprecation } = require('process');
+const student = require('../models/student');
 
 let router = express.Router();
+
+router.post('/login', async (request, response) => {
+    const { email, 
+            password,
+        } = request.body;
+
+        if ( (typeof email === 'undefined' || email.trim() === "") || (typeof password === 'undefined' ||  password.trim() === "") ){
+            return response.status(500).json({
+                msg: "Il faut remplir tous les champs !"
+            })
+        }
+        try {
+            let exist = await studentModel.findOne({email: email.trim()});
+            
+            if (!exist) {
+                return response.status(500).json({
+                    msg: "Pas de email"
+                })
+            }
+            else if(exist && await bcrypt.compare(password, exist.password) ){
+                return response.status(200).json(exist);
+            }else{
+                return response.status(500).json({
+                    msg: "MDP PAS BON"
+                })
+            }
+        } catch (error) {
+            return response.status(500).json({
+                msg: "ca marche pas du tout"
+            })
+        }  
+});
+
+router.post('/register', async (request, response) => {
+    const { email, 
+            email_cfg, 
+            password, 
+            password_cfg, 
+            firstname, 
+            lastname 
+        } = request.body;
+
+        if ( (typeof email === 'undefined' || email.trim() === "") || (typeof password === 'undefined' ||  password.trim() === "") ){
+            return response.status(500).json({
+                msg: "Il faut remplir tous les champs !"
+            })
+        }
+         
+        if (email !== email_cfg || password !== password_cfg){
+            return response.status(500).json({
+                msg: "Les confirmations ne sont pas bonnes!"
+            })
+        }
+
+        let exist = await studentModel.findOne({email});
+            
+        if (exist) {
+            return response.status(500).json({
+                msg: "L'email existe déja mdr"
+            })
+        }
+        let student = await studentModel.create({
+            email: typeof email !== 'undefined' ? email.trim() : "",
+            password: bcrypt.hashSync(password.trim(), 10),
+            firstname: typeof firstname !== 'undefined' ? firstname.trim() : "",
+            lastname: typeof lastname !== 'undefined' ? lastname.trim() : "",
+        })
+    return response.status(200).json(student);
+});
 
 router.post('/', async(req, res) =>{
     const {firstname, lastname} = req.body;
