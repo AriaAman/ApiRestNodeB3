@@ -22,7 +22,8 @@ const studentSchema = new mongoosse.Schema({
         type: String,
         required: [true, 'Entrez un nom'],
         trim: true
-    }
+    },
+    classe: { type: mongoose.Schema.Types.ObjectId, ref: 'Classe' }
 },{
     timestamps: {
         createdAt: 'created_at',

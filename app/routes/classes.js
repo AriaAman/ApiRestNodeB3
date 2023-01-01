@@ -28,6 +28,24 @@ router.post('/', async (request, response) =>{
         });
     }
 });
+router.post('/add-student', async (request, response) => {
+
+    const {studentId, classeId} = request.body;
+try {
+    classes = await classeModel.findOneAndUpdate({ 
+        _id: classeId
+    }, {
+        students: [studentId]
+    },{
+        new: true
+    }).populate('students');
+    return response.status(200).json(classes);
+} catch (error) {
+    return response.status(500)({
+        msg: error
+    });
+   }
+});
 //LIRE 
 router.get('/', async (request, response) => {
     try {

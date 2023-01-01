@@ -10,6 +10,12 @@ const student = require('../models/student');
 
 let router = express.Router();
 
+
+router.get('/me',(request, response) =>{
+    console.log(request.session);
+    return response.status(200).json({msg:request.session.student});
+});
+
 router.post('/login', async (request, response) => {
     const { email, 
             password,
@@ -25,19 +31,20 @@ router.post('/login', async (request, response) => {
             
             if (!exist) {
                 return response.status(500).json({
-                    msg: "Pas de email"
+                    msg: "Pas de email" + error
                 })
             }
             else if(exist && await bcrypt.compare(password, exist.password) ){
+                request.session.student = exist;
                 return response.status(200).json(exist);
             }else{
                 return response.status(500).json({
-                    msg: "MDP PAS BON"
+                    msg: "MDP PAS BON" + error
                 })
             }
         } catch (error) {
             return response.status(500).json({
-                msg: "ca marche pas du tout"
+                msg: "ca marche pas du tout" + error
             })
         }  
 });
@@ -162,7 +169,8 @@ router.put('/:id', async (req,res) =>{
     // student.name = name;
 
     // res.status(200).json(classe);
-})
+});
+
 
 
 module.exports = router;
